@@ -27,7 +27,7 @@ class Sink:
     @staticmethod
     def df_to_mysql(df: DataFrame, table_name):
         df.to_sql(name=table_name, con=conn, if_exists='replace', index=False)
-        logger.info("insert table '%s' rows(%d)" % (table_name, df.shape[0]))
+        logger.info("插入数据到MySQL表: '%s' 行数(%d)" % (table_name, df.shape[0]))
 
 
 class Source:
@@ -48,7 +48,7 @@ class Source:
         '''防止SQL注入'''
         df = pd.read_sql(sql, con=conn, params=params)
         exe_sql = sql if params is None else sql % tuple(params)
-        logger.info("execute sql '%s', return rows(%d)" % (exe_sql, df.shape[0]))
+        logger.info("执行sql '%s', 返回行数(%d)" % (exe_sql, df.shape[0]))
         return df
 
 

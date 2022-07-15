@@ -1,8 +1,9 @@
 # 公共的维度数据
 
-# 是否开发模式，用来切换配置参数
+
 from common import config
 
+# 是否开发模式，用来切换配置参数
 is_dev = True
 
 

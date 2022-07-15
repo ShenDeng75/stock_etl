@@ -6,6 +6,7 @@ import pandas as pd
 import akshare as ak
 import schedule
 from pandas import DataFrame
+from retrying import retry
 
 from common.logger import logger
 from common.properties import Fields
@@ -17,6 +18,7 @@ pd.set_option('display.max_columns', None)
 
 
 # 获取实时股票数据
+@retry(stop_max_attempt_number=3, wait_fixed=1000)
 def get_real_time_data() -> str:
     df = ak.stock_zh_a_spot_em()
     row = df.shape[0]
