@@ -1,0 +1,9 @@
+# 数据文件
+/logs/
+
+# idea生成的文件
+/.idea/
+*.iml
+
+# python编译产生的缓存文件
+*.py[cod]
