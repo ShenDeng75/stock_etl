@@ -29,7 +29,7 @@ class Sink:
 
     @staticmethod
     def df_to_mysql(df: DataFrame, table_name):
-        df.to_sql(name=table_name, con=conn, if_exists='replace', index=False)
+        df.to_sql(name=table_name, con=conn, if_exists='append', index=False)
         logger.info("插入数据到MySQL表: '%s' 行数(%d)" % (table_name, df.shape[0]))
 
 

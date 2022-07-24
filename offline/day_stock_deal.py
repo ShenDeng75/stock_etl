@@ -25,18 +25,17 @@ table_name = 't_stock_deal'
 # 个股历史交易[未复权](最多重试5次，每次间隔3秒)
 @retry(stop_max_attempt_number=5, wait_fixed=3000)
 def get_stock_deal(ts_code, start_date, end_date, adj) -> DataFrame:
-    stock_df = DataFrame()
     if adj == 'none':
         stock_df = pro.daily(ts_code=ts_code, start_date=start_date, end_date=end_date)
     else:
-        stock_df = pro.pro_bar()
+        stock_df = ts.pro_bar(ts_code=ts_code, adj=adj, asset='E', freq='D', start_date=start_date, end_date=end_date)
     rows = stock_df.shape[0]
-    logger.info("从 pro.daily接口获取个股交易天数据 %d行" % rows)
+    logger.info("获取个股交易天粒度数据 %d行，复权类型 %s" % (rows, adj))
     dt = time.strftime('%Y%m%d')
     dt_col = [dt for _ in range(rows)]
     # 获取数据的时间
     stock_df.insert(loc=0, column='input_time', value=dt_col)
-    # 未复权
+    # 复权类型
     adj_col = [adj for _ in range(rows)]
     stock_df.insert(loc=0, column='adj', value=adj_col)
 
@@ -44,13 +43,17 @@ def get_stock_deal(ts_code, start_date, end_date, adj) -> DataFrame:
 
 
 # 获取个股历史数据（默认获取昨天）
-def get_history_deal(adj, start_date=Date.ystday, end_date=Date.ystday):
-    ts_codes = Source.mysql_args2df(month_stock_dim.table_name, columns=['ts_code'])['ts_code'].tolist()
+def get_history_deal(adj='none', ts_codes: list = None, start_date=Date.ystday, end_date=Date.ystday):
+    if ts_codes is None:
+        ts_codes = Source.mysql_args2df(month_stock_dim.table_name, columns=['ts_code'])['ts_code'].tolist()
+        days = (datetime.strptime(end_date, Date.fmt_ds) - datetime.strptime(start_date, Date.fmt_ds)).days + 1
+        step = min(int(5000 / days * 1.3), 1000)
+    else:
+        step = len(ts_codes)
+
     res_stock_deal = DataFrame()
-    days = (datetime.strptime(end_date, Date.fmt_ds) - datetime.strptime(start_date, Date.fmt_ds)).days + 1
-    # 由于接口一次最多获取5000行，并且单次查询的股票数量超过1000就会失败
+    # 由于接口一次最多获取5000行，并且单次查询的股票数量超过1000就会失败，所以要分批查询
     # 考虑查询的时间段内有非交易日，所以实际天数是交易日的约0.3倍
-    step = min(int(5000 / days * 1.3), 1000)
     for idx in range(0, len(ts_codes), step):
         str_ts_codes = ','.join(ts_codes[idx:idx + step])
         batch = get_stock_deal(str_ts_codes, start_date, end_date, adj)
@@ -60,9 +63,9 @@ def get_history_deal(adj, start_date=Date.ystday, end_date=Date.ystday):
 
 
 def run():
-    stock = get_history_deal()
+    stock = get_history_deal(start_date='20210101', end_date='20220724')
     Sink.df_to_mysql(stock, table_name)
-    # print(stock)
+    print(stock)
 
 
 if __name__ == "__main__":
