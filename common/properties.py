@@ -1,5 +1,5 @@
 # 公共的维度数据
-
+from datetime import date, timedelta
 
 from common import config
 
@@ -25,3 +25,8 @@ class Config:
             return config.ConfigDev
         else:
             return config.ConfigPro
+
+
+class Date:
+    fmt_ds = "%Y%m%d"
+    ystday = (date.today() + timedelta(days=-1)).strftime(fmt_ds)

@@ -23,7 +23,7 @@ table_name = 't_stock_detail'
 @retry(stop_max_attempt_number=5, wait_fixed=3000)
 def get_stock_detail() -> DataFrame:
     stock_df: DataFrame = pro.stock_basic(
-        feilds='ts_code,symbol,name,area,industry,market,exchange,curr_type,'
+        fields='ts_code,symbol,name,area,industry,market,exchange,curr_type,'
                'list_status,list_date,delist_date,is_hs')
     rows = stock_df.shape[0]
     logger.info("从 pro.stock_basic接口获取个股详情数据 %d行" % rows)

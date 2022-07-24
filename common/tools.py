@@ -1,6 +1,7 @@
 # 公共的处理方法
 import json
 import pandas as pd
+from kafka import KafkaProducer
 from pandas import DataFrame
 from sqlalchemy import create_engine
 
@@ -14,15 +15,18 @@ conn = create_engine(mysql_conn_url)
 
 
 class Sink:
+    kfk_prod = KafkaProducer(bootstrap_servers=conf.kfk_bt_servers, value_serializer=lambda x: x.encode("utf-8"))
 
     @staticmethod
-    def json_str_to_kafka(json_str: str):
+    def json_str_to_kafka(json_str: str, topic: str):
         json_data = json.loads(json_str)
-        Sink.json_to_kafka(json_data)
-
-    @staticmethod
-    def json_to_kafka(json_data):
-        pass
+        if isinstance(json_data, dict):
+            Sink.kfk_prod.send(topic=topic, value=json.dumps(json_data))
+            logger.info("写入数据到topic '%s' 1 行" % topic)
+        if isinstance(json_data, list):
+            for msg in json_data:
+                Sink.kfk_prod.send(topic=topic, value=json.dumps(msg))
+            logger.info("写入数据到topic '%s' %d 行" % (topic, len(json_data)))
 
     @staticmethod
     def df_to_mysql(df: DataFrame, table_name):

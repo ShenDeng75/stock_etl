@@ -9,13 +9,14 @@ from pandas import DataFrame
 from retrying import retry
 
 from common.logger import logger
-from common.properties import Fields
+from common.properties import Fields, Config
 from common.tools import Sink, Source
-from offline import year_trade_day
+from offline import year_trade_day_dim
 
 pd.set_option('display.width', 200)
 pd.set_option('display.max_columns', None)
 
+conf = Config.sink_config()
 
 # 获取实时股票数据
 @retry(stop_max_attempt_number=3, wait_fixed=1000)
@@ -37,14 +38,14 @@ def get_real_time_data() -> str:
 
 def run():
     res_json_str = get_real_time_data()
-    # Sink.json_str_to_kafka(res_json_str)
-    logger.info(res_json_str)
+    Sink.json_str_to_kafka(res_json_str, conf.topic_stock)
+    # print(res_json_str)
 
 
 # 调度
 def execute():
     ds = time.strftime('%Y%m%d')
-    df_trade_day = Source.mysql_args2df(year_trade_day.table_name, where={'cal_date': ds}, columns=['is_open'])
+    df_trade_day = Source.mysql_args2df(year_trade_day_dim.table_name, where={'cal_date': ds}, columns=['is_open'])
     if df_trade_day.shape[0] != 1:
         logger.error('交易日期获取失败')
         return -1
