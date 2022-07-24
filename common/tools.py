@@ -5,10 +5,9 @@ from kafka import KafkaProducer
 from pandas import DataFrame
 from sqlalchemy import create_engine
 
-from common import properties
 from common.logger import logger
+from common.properties import conf
 
-conf = properties.Config.sink_config()
 mysql_conn_url = 'mysql+pymysql://%s:%s@%s:%d/%s?charset=utf8' % (
     conf.mysql_username, conf.mysql_pwd, conf.mysql_host, conf.mysql_port, conf.mysql_db)
 conn = create_engine(mysql_conn_url)

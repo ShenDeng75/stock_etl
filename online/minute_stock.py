@@ -2,21 +2,20 @@
 # -*- coding: utf-8 -*-
 import time
 
-import pandas as pd
 import akshare as ak
+import pandas as pd
 import schedule
 from pandas import DataFrame
 from retrying import retry
 
 from common.logger import logger
-from common.properties import Fields, Config
+from common.properties import Fields, conf
 from common.tools import Sink, Source
 from offline import year_trade_day_dim
 
 pd.set_option('display.width', 200)
 pd.set_option('display.max_columns', None)
 
-conf = Config.sink_config()
 
 # 获取实时股票数据
 @retry(stop_max_attempt_number=3, wait_fixed=1000)

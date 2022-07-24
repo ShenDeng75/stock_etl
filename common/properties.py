@@ -27,6 +27,9 @@ class Config:
             return config.ConfigPro
 
 
+conf = Config.sink_config()
+
+
 class Date:
     fmt_ds = "%Y%m%d"
     ystday = (date.today() + timedelta(days=-1)).strftime(fmt_ds)

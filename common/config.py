@@ -3,6 +3,8 @@ from common.encrypt import decrypt
 
 
 class Config:
+    # 公共配置
+    log_dir = r'D:\Code\PythonCode\StockData\logs\test.log'
     # mysql配置
     mysql_host = 'localhost'
     mysql_port = 3306

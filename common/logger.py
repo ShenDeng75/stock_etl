@@ -3,6 +3,8 @@ import logging
 from logging import handlers
 
 # 日志级别关系映射
+from common.properties import conf
+
 level_relations = {
     'debug': logging.DEBUG,
     'info': logging.INFO,
@@ -35,4 +37,4 @@ def get_logger(filename, level='info'):
 
 
 # 明确指定日志输出的文件路径和日志级别
-logger = get_logger('../logs/test.log', 'info')
+logger = get_logger(conf.log_dir)
