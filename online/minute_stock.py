@@ -10,8 +10,7 @@ from retrying import retry
 
 from common.logger import logger
 from common.properties import Fields, conf
-from common.tools import Sink, Source
-from offline import year_trade_day_dim
+from common.tools import Sink, Common
 
 pd.set_option('display.width', 200)
 pd.set_option('display.max_columns', None)
@@ -44,12 +43,7 @@ def run():
 # 调度
 def execute():
     ds = time.strftime('%Y%m%d')
-    df_trade_day = Source.mysql_args2df(year_trade_day_dim.table_name, where={'cal_date': ds}, columns=['is_open'])
-    if df_trade_day.shape[0] != 1:
-        logger.error('交易日期获取失败')
-        return -1
-    is_trade_day = df_trade_day.iloc[0, 0]
-    if not is_trade_day:
+    if not Common.is_trade_day(ds):
         logger.info('%s 不是交易日' % ds)
         return 0
 

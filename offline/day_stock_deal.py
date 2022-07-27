@@ -3,14 +3,14 @@
 import time
 from datetime import datetime
 
-import tushare as ts
 import pandas as pd
+import tushare as ts
 from pandas import DataFrame
 from retrying import retry
 
 from common.logger import logger
 from common.properties import Date
-from common.tools import Sink, Source
+from common.tools import Sink, Source, Common
 from offline import month_stock_dim
 
 pd.set_option('display.width', 200)
@@ -63,9 +63,18 @@ def get_history_deal(adj='none', ts_codes: list = None, start_date=Date.ystday, 
 
 
 def run():
-    stock = get_history_deal(start_date='20210101', end_date='20220724')
+    stock = get_history_deal()
     Sink.df_to_mysql(stock, table_name)
-    print(stock)
+    # print(stock)
+
+
+def execute():
+    ds = Date.ystday
+    if not Common.is_trade_day(ds):
+        logger.info('%s 不是交易日' % ds)
+        return 0
+
+    run()
 
 
 if __name__ == "__main__":

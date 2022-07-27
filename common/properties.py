@@ -15,6 +15,7 @@ class Fields:
                          "换手率": "change_head", "市盈率-动态": "pe_d", "市净率": "pb", "总市值": "total_money",
                          "流通市值": "market_money", "涨速": "up_speed", "5分钟涨跌": "change_5min", "60日涨跌幅": "change_60day",
                          "年初至今涨跌幅": "chang_year"}
+    trade_day_table_name = 't_trade_day'
 
 
 # 配置信息

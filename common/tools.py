@@ -1,16 +1,29 @@
 # 公共的处理方法
 import json
+
 import pandas as pd
 from kafka import KafkaProducer
 from pandas import DataFrame
 from sqlalchemy import create_engine
 
 from common.logger import logger
-from common.properties import conf
+from common.properties import conf, Fields
 
 mysql_conn_url = 'mysql+pymysql://%s:%s@%s:%d/%s?charset=utf8' % (
     conf.mysql_username, conf.mysql_pwd, conf.mysql_host, conf.mysql_port, conf.mysql_db)
 conn = create_engine(mysql_conn_url)
+
+
+class Common:
+    @staticmethod
+    def is_trade_day(ds):
+        df_trade_day = Source.mysql_args2df(Fields.trade_day_table_name, where={'cal_date': ds}, columns=['is_open'])
+        if df_trade_day.shape[0] != 1:
+            logger.error('交易日期获取失败')
+            return -1
+        is_trade_day = df_trade_day.iloc[0, 0]
+
+        return is_trade_day
 
 
 class Sink:
