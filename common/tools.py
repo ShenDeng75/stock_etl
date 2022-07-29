@@ -1,9 +1,11 @@
 # 公共的处理方法
 import json
+import os
 
 import pandas as pd
+import pyhdfs
 from kafka import KafkaProducer
-from pandas import DataFrame
+from pandas import DataFrame, Series
 from sqlalchemy import create_engine
 
 from common.logger import logger
@@ -27,23 +29,47 @@ class Common:
 
 
 class Sink:
-    kfk_prod = KafkaProducer(bootstrap_servers=conf.kfk_bt_servers, value_serializer=lambda x: x.encode("utf-8"))
 
     @staticmethod
     def json_str_to_kafka(json_str: str, topic: str):
+        kfk_prod = KafkaProducer(bootstrap_servers=conf.kfk_bt_servers, value_serializer=lambda x: x.encode("utf-8"))
         json_data = json.loads(json_str)
         if isinstance(json_data, dict):
-            Sink.kfk_prod.send(topic=topic, value=json.dumps(json_data))
+            kfk_prod.send(topic=topic, value=json.dumps(json_data))
             logger.info("写入数据到topic '%s' 1 行" % topic)
         if isinstance(json_data, list):
             for msg in json_data:
-                Sink.kfk_prod.send(topic=topic, value=json.dumps(msg))
+                kfk_prod.send(topic=topic, value=json.dumps(msg))
             logger.info("写入数据到topic '%s' %d 行" % (topic, len(json_data)))
 
     @staticmethod
     def df_to_mysql(df: DataFrame, table_name):
         df.to_sql(name=table_name, con=conn, if_exists='append', index=False)
         logger.info("插入数据到MySQL表: '%s' 行数(%d)" % (table_name, df.shape[0]))
+
+    @staticmethod
+    def df_to_hdfs(path_dir, df: DataFrame, path_col, overwrite=True, row_sep='\001', col_sep='\n'):
+        '''将数据写入到path_col列对应的文件路径中'''
+        client = pyhdfs.HdfsClient(hosts=conf.hdfs_hosts, user_name=conf.hdfs_user)
+        dir_path = os.path.dirname(path_dir)
+        if not client.exists(dir_path):
+            client.mkdirs(dir_path)
+
+        key: Series = df[path_col]
+        first = df[df.columns[0]]
+        rdf: DataFrame = df.drop(columns=df.columns[0], axis=1)
+        # 将所有列拼接为一个字符串列
+        value: Series = first.map(str).str.cat(rdf.astype(str), sep=row_sep)
+        mid_df = pd.concat([key, value], axis=1, ignore_index=True)
+        mid_df.columns = ['key', 'value']
+        # 将同路径的合并为一行，key为路径，value为数据
+        res: DataFrame = mid_df.groupby('key')['value'].apply(lambda x: x.str.cat(sep=col_sep)).reset_index()
+        for item in res.values:
+            path = '/'.join([path_dir, item[0][:6], item[0]]) + '.txt'
+            data: str = item[1]
+            client.create(path, data.encode("utf-8"), overwrite=overwrite)
+
+            logger.info("写入 %d 行数据到文件 %s 中" % (data.count('\n') + 1, path))
 
 
 class Source:

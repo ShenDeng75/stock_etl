@@ -49,13 +49,13 @@ def get_history_basic(ts_codes: list = None, start_date=Date.ystday, end_date=Da
 
     res_stock_deal = DataFrame()
     batch_num = 0
-    for idx in range(2240, len(ts_codes), step):
+    for idx in range(0, len(ts_codes), step):
         str_ts_codes = ','.join(ts_codes[idx:idx + step])
         batch = get_stock_basic(str_ts_codes, start_date, end_date)
         res_stock_deal = pd.concat([res_stock_deal, batch])
 
         batch_num += 1
-        if batch_num % 1 == 0:
+        if batch_num % 2 == 0:
             Sink.df_to_mysql(res_stock_deal, table_name)
             res_stock_deal = DataFrame()
             logger.info("分批同步个股基本面数据中，总量%d个，已同步%d个 (%.2f%%)"

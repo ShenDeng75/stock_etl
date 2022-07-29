@@ -15,6 +15,10 @@ class Config:
     kfk_bt_servers = ['master:9092', 'slave1:9092', 'slave2:9092']
     topic_stock = 'qiyue'
     kfk_gid_stock = 'gid_stock'
+    # hdfs配置
+    hdfs_hosts = 'master,9000'
+    hdfs_user = 'py_user'
+    hdfs_base_path = '/stock/EXT'
 
 
 # 开发环境

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import os
 import time
 from datetime import datetime
 
@@ -9,7 +10,7 @@ from pandas import DataFrame
 from retrying import retry
 
 from common.logger import logger
-from common.properties import Date
+from common.properties import Date, conf
 from common.tools import Sink, Source, Common
 from offline import month_stock_dim
 
@@ -20,6 +21,7 @@ ts.set_token("c20ea165fe87e91c0eec2f1fb529b29e0a1ce3ee61f017dc96f64c7b")
 pro = ts.pro_api()
 
 table_name = 't_stock_deal'
+ext_table_name = 't_ext_stock_deal'
 
 
 # 个股历史交易[未复权](最多重试5次，每次间隔3秒)
@@ -57,15 +59,19 @@ def get_history_deal(adj='none', ts_codes: list = None, start_date=Date.ystday, 
     for idx in range(0, len(ts_codes), step):
         str_ts_codes = ','.join(ts_codes[idx:idx + step])
         batch = get_stock_deal(str_ts_codes, start_date, end_date, adj)
-        res_stock_deal = pd.concat([res_stock_deal, batch])
+        # 这里要注意ignore_index参数，默认为False(表示保留原DF的index)，True(表示重新编号)
+        # 例如两个行数为1000的DF通过concat合并后，总行数为2000，但是index还是原来的0~999
+        # ignore_index为False是，通过df.loc[1001]时会报错，因为index中是0~999(分别有2个)
+        res_stock_deal = pd.concat([res_stock_deal, batch], ignore_index=True)
 
     return res_stock_deal
 
 
 def run():
-    stock = get_history_deal()
-    Sink.df_to_mysql(stock, table_name)
-    # print(stock)
+    stock = get_history_deal(start_date='20220701', end_date='20220719')
+    # Sink.df_to_mysql(stock, table_name)
+    save_path = '/'.join([conf.hdfs_base_path, ext_table_name])
+    Sink.df_to_hdfs(save_path, stock, 'trade_date')
 
 
 def execute():
