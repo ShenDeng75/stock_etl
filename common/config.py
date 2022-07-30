@@ -4,7 +4,7 @@ from common.encrypt import decrypt
 
 class Config:
     # 公共配置
-    log_dir = r'D:\Code\PythonCode\StockData\logs\test.log'
+    log_dir = None
     # mysql配置
     mysql_host = 'localhost'
     mysql_port = 3306
@@ -23,11 +23,13 @@ class Config:
 
 # 开发环境
 class ConfigDev(Config):
+    log_dir = r'D:\Code\PythonCode\StockData\logs\stock.log'
     mysql_pwd = decrypt('c2hlbmRlbmc3NQ==')
 
 
 # 生产环境
 class ConfigPro(Config):
+    log_dir = r'/opt/code/stock_etl/log/stock.log'
     mysql_host = '192.168.14.16'
     mysql_pwd = decrypt('c2hlbmRlbmc3NQ==')
     topic_stock = 'tc_stock'

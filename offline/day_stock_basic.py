@@ -9,7 +9,7 @@ from pandas import DataFrame
 from retrying import retry
 
 from common.logger import logger
-from common.properties import Date
+from common.properties import Date, conf
 from common.tools import Sink, Source, Common
 from offline import month_stock_dim
 
@@ -20,9 +20,10 @@ ts.set_token("c20ea165fe87e91c0eec2f1fb529b29e0a1ce3ee61f017dc96f64c7b")
 pro = ts.pro_api()
 
 table_name = 't_stock_basic'
+ext_table_name = 't_ext_stock_basic'
 
 
-# 个股历史基本面(最多重试3次，每次间隔13秒)，该接口每分钟最多访问5次，每天最多50次
+# 个股历史基本面(最多重试5次，每次间隔13秒)，该接口每分钟最多访问5次，每天最多50次
 @retry(stop_max_attempt_number=3, wait_fixed=13000)
 def get_stock_basic(ts_code, start_date, end_date) -> DataFrame:
     stock_df = pro.bak_daily(ts_code=ts_code, start_date=start_date, end_date=end_date)
@@ -52,23 +53,27 @@ def get_history_basic(ts_codes: list = None, start_date=Date.ystday, end_date=Da
     for idx in range(0, len(ts_codes), step):
         str_ts_codes = ','.join(ts_codes[idx:idx + step])
         batch = get_stock_basic(str_ts_codes, start_date, end_date)
-        res_stock_deal = pd.concat([res_stock_deal, batch])
+        res_stock_deal = pd.concat([res_stock_deal, batch], ignore_index=True)
 
-        batch_num += 1
-        if batch_num % 2 == 0:
-            Sink.df_to_mysql(res_stock_deal, table_name)
-            res_stock_deal = DataFrame()
-            logger.info("分批同步个股基本面数据中，总量%d个，已同步%d个 (%.2f%%)"
-                        % (len(ts_codes), idx + step, (idx + step) * 100 / len(ts_codes)))
-        time.sleep(13)
+        # 批量获取历史数据时，需要分批同步
+        if start_date != Date.ystday:
+            batch_num += 1
+            if batch_num % 2 == 0:
+                Sink.df_to_mysql(res_stock_deal, table_name)
+                res_stock_deal = DataFrame()
+                logger.info("分批同步个股基本面数据中，总量%d个，已同步%d个 (%.2f%%)"
+                            % (len(ts_codes), idx + step, (idx + step) * 100 / len(ts_codes)))
+
+            time.sleep(13)
 
     return res_stock_deal
 
 
 def run():
-    stock = get_history_basic(start_date='20220101', end_date='20220721')
+    stock = get_history_basic()
     Sink.df_to_mysql(stock, table_name)
-    # print(stock)
+    save_path = '/'.join([conf.hdfs_base_path, ext_table_name])
+    Sink.df_to_hdfs(save_path, stock, 'trade_date')
 
 
 def execute():
@@ -81,4 +86,4 @@ def execute():
 
 
 if __name__ == "__main__":
-    run()
+    execute()
