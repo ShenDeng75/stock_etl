@@ -1,6 +1,7 @@
 # 公共的处理方法
 import json
 import os
+import time
 
 import pandas as pd
 import pyhdfs
@@ -32,14 +33,20 @@ class Sink:
 
     @staticmethod
     def json_str_to_kafka(json_str: str, topic: str):
-        kfk_prod = KafkaProducer(bootstrap_servers=conf.kfk_bt_servers, value_serializer=lambda x: x.encode("utf-8"))
+        kfk_prod = KafkaProducer(bootstrap_servers=conf.kfk_bt_servers, retries=3,
+                                 value_serializer=lambda x: x.encode("utf-8"))
         json_data = json.loads(json_str)
         if isinstance(json_data, dict):
             kfk_prod.send(topic=topic, value=json.dumps(json_data))
             logger.info("写入数据到topic '%s' 1 行" % topic)
         if isinstance(json_data, list):
-            for msg in json_data:
-                kfk_prod.send(topic=topic, value=json.dumps(msg))
+            for idx, msg in enumerate(json_data):
+                future = kfk_prod.send(topic=topic, value=json.dumps(msg))
+                # 调用get方法是同步方式，性能较低；不调用是异步方式，异步方式存在丢失数据的问题；
+                # 如果集群不稳定，且数据量不大，最好使用同步方式；
+                meta_data = future.get(10)
+                logger.debug("kafka生产数据： topic %s, partition %s, offset %s"
+                             % (meta_data.topic, meta_data.partition, meta_data.offset))
             logger.info("写入数据到topic '%s' %d 行" % (topic, len(json_data)))
 
     @staticmethod
@@ -95,5 +102,4 @@ class Source:
 
 
 if __name__ == "__main__":
-    print(Source.mysql_args2df('t_trade_day', where={'cal_date': '20220715', 'is_open': 1},
-                               columns=['cal_date', 'is_open']))
+    Sink.json_str_to_kafka('[{"name":"shendeng","age":13},{"name":"saaa","age":45}]', conf.topic_stock)
