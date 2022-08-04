@@ -37,7 +37,7 @@ def get_company_detail() -> DataFrame:
 
 def run():
     company = get_company_detail()
-    Sink.df_to_mysql(company, table_name)
+    Sink.df_to_mysql(company, table_name, Sink.MODEL_REPLACE)
 
 
 if __name__ == "__main__":

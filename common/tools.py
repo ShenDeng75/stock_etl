@@ -30,6 +30,8 @@ class Common:
 
 
 class Sink:
+    MODEL_APPEND = "append"
+    MODEL_REPLACE = "replace"
 
     @staticmethod
     def json_str_to_kafka(json_str: str, topic: str):
@@ -50,8 +52,8 @@ class Sink:
             logger.info("写入数据到topic '%s' %d 行" % (topic, len(json_data)))
 
     @staticmethod
-    def df_to_mysql(df: DataFrame, table_name):
-        df.to_sql(name=table_name, con=conn, if_exists='append', index=False)
+    def df_to_mysql(df: DataFrame, table_name, if_exists=MODEL_APPEND):
+        df.to_sql(name=table_name, con=conn, if_exists=if_exists, index=False)
         logger.info("插入数据到MySQL表: '%s' 行数(%d)" % (table_name, df.shape[0]))
 
     @staticmethod

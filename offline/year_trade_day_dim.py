@@ -19,7 +19,7 @@ def get_trade_day():
 
 def run():
     trade_day: DataFrame = get_trade_day()
-    Sink.df_to_mysql(trade_day, table_name)
+    Sink.df_to_mysql(trade_day, table_name, Sink.MODEL_REPLACE)
 
 
 if __name__ == "__main__":

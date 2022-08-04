@@ -37,7 +37,7 @@ def get_stock_detail() -> DataFrame:
 
 def run():
     stock = get_stock_detail()
-    Sink.df_to_mysql(stock, table_name)
+    Sink.df_to_mysql(stock, table_name, Sink.MODEL_REPLACE)
 
 
 if __name__ == "__main__":
