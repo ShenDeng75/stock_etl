@@ -24,12 +24,12 @@ class Config:
 # 开发环境
 class ConfigDev(Config):
     log_dir = r'D:\Code\PythonCode\StockData\logs\stock.log'
-    mysql_pwd = decrypt('c2hlbmRlbmc3NQ==')
+    mysql_pwd = decrypt('Yjk4OGRjYzgzYjcwZWU1MGJmYTQxZjYzZDUwMzliYWI=')
 
 
 # 生产环境
 class ConfigPro(Config):
     log_dir = r'/opt/code/stock_etl/log/stock.log'
     mysql_host = 'cloud'
-    mysql_pwd = decrypt('U2hlbmRlbmc3NTs=')
+    mysql_pwd = decrypt('ZWM4ZGIyZTExMWVmNzZjZTQyYjcyYTg2YzQ1OTE4ZGM=')
     topic_stock = 'tc_stock'
