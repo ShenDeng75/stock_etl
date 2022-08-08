@@ -12,7 +12,7 @@ class Config:
     mysql_pwd = None
     mysql_db = 'stock'
     # kafka配置
-    kfk_bt_servers = ['master:9092', 'slave1:9092', 'slave2:9092']
+    kfk_bt_servers = ['cloud:9092']
     topic_stock = 'qiyue'
     kfk_gid_stock = 'gid_stock'
     # hdfs配置
@@ -30,6 +30,6 @@ class ConfigDev(Config):
 # 生产环境
 class ConfigPro(Config):
     log_dir = r'/opt/code/stock_etl/log/stock.log'
-    mysql_host = '192.168.14.16'
-    mysql_pwd = decrypt('c2hlbmRlbmc3NQ==')
+    mysql_host = 'cloud'
+    mysql_pwd = decrypt('U2hlbmRlbmc3NTs=')
     topic_stock = 'tc_stock'
