@@ -1,7 +1,6 @@
 # 公共的处理方法
 import json
 import os
-import time
 
 import pandas as pd
 import pyhdfs
@@ -35,7 +34,11 @@ class Sink:
 
     @staticmethod
     def json_str_to_kafka(json_str: str, topic: str):
-        kfk_prod = KafkaProducer(bootstrap_servers=conf.kfk_bt_servers, retries=3,
+        kfk_prod = KafkaProducer(sasl_mechanism="PLAIN",
+                                 security_protocol='SASL_PLAINTEXT',
+                                 sasl_plain_username=conf.kfk_user,
+                                 sasl_plain_password=conf.kfk_passwd,
+                                 bootstrap_servers=conf.kfk_bt_servers, retries=3,
                                  value_serializer=lambda x: x.encode("utf-8"))
         json_data = json.loads(json_str)
         if isinstance(json_data, dict):

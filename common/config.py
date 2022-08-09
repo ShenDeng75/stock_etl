@@ -15,6 +15,8 @@ class Config:
     kfk_bt_servers = ['cloud:9092']
     topic_stock = 'qiyue'
     kfk_gid_stock = 'gid_stock'
+    kfk_user = decrypt('ODQ0MDAxNmYzN2U5YTcxZWMwNjdkZDg2ZTZhMmI0OTg=')
+    kfk_passwd = decrypt('Yjk4OGRjYzgzYjcwZWU1MGJmYTQxZjYzZDUwMzliYWI=')
     # hdfs配置
     hdfs_hosts = 'master,9000'
     hdfs_user = 'py_user'

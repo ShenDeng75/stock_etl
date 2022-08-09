@@ -29,7 +29,7 @@ def decrypt(txt):
 
 
 if __name__ == "__main__":
-    en = encrypt('abc@123;')
+    en = encrypt('123456')
     print(en)
     de = decrypt(en)
     print(de)
