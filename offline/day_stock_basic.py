@@ -72,8 +72,8 @@ def get_history_basic(ts_codes: list = None, start_date=Date.ystday, end_date=Da
 def run():
     stock = get_history_basic()
     Sink.df_to_mysql(stock, table_name)
-    save_path = '/'.join([conf.hdfs_base_path, ext_table_name])
-    Sink.df_to_hdfs(save_path, stock, 'trade_date')
+    # save_path = '/'.join([conf.hdfs_base_path, ext_table_name])
+    # Sink.df_to_hdfs(save_path, stock, 'trade_date')
 
 
 def execute():
