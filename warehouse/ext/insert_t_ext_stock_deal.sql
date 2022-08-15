@@ -1,1 +1,1 @@
-alter table stock.t_ext_stock_deal add partition(dt='${hiveconf:dt}') location '/stock/EXT/t_ext_stock_deal/${hiveconf:dt}'
+alter table stock.t_ext_stock_deal add partition(dt='${dt}') location '/stock/EXT/t_ext_stock_deal/${dt}'

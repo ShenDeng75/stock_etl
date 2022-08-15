@@ -1,0 +1,14 @@
+sqoop import \
+-D org.apache.sqoop.splitter.allow_text_splitter=true \
+--connect jdbc:mysql://cloud:3306/stock \
+--username sink --password-file file:///home/shendeng/.sqoop/.sqoop_pwd \
+--table t_stock_deal \
+--fetch-size 10000 \
+--target-dir hdfs://master:9000/stock/EXT/t_ext_stock_deal/${dt} \
+--where "trade_date=${dt}" \
+--fields-terminated-by '\001' \
+--delete-target-dir \
+--null-string '\\N' \
+--null-non-string '\\N' \
+--split-by ts_code \
+-m 2
