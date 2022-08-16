@@ -1,0 +1,31 @@
+# 数据接入到ods层的调度job
+
+config:
+  failure.emails: 2363521277@qq.com
+  
+nodes:
+  # 用sqoop同步t_ext_stock_deal数据到hdfs
+  - name: sqoop_import_t_ext_stock_deal
+    type: command
+    config:
+      command: sh import_t_ext_stock_deal.sh "${dt}"
+  # 添加hive表分区
+  - name: insert_t_ext_stock_deal
+    type: command
+    dependsOn:
+      - sqoop_import_t_ext_stock_deal
+    config:
+      command: hive -hivevar dt=${dt} -f insert_t_ext_stock_deal.sql
+
+  # 用sqoop同步t_ext_stock_basic数据到hdfs
+  - name: sqoop_import_t_ext_stock_basic
+    type: command
+    config:
+      command: sh import_t_ext_stock_basic.sh "${dt}"
+  # 添加hive表分区
+  - name: insert_t_ext_stock_basic
+    type: command
+    dependsOn:
+      - sqoop_import_t_ext_stock_basic
+    config:
+      command: hive -hivevar dt=${dt} -f insert_t_ext_stock_basic.sql

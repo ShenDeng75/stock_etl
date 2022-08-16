@@ -2,9 +2,9 @@ sqoop import \
 -D org.apache.sqoop.splitter.allow_text_splitter=true \
 --connect jdbc:mysql://cloud:3306/stock \
 --username sink --password-file file:///home/shendeng/.sqoop/.sqoop_pwd \
---table t_stock_deal \
+--table t_stock_basic \
 --fetch-size 10000 \
---target-dir hdfs://master:9000/stock/EXT/t_ext_stock_deal/$1 \
+--target-dir hdfs://master:9000/stock/EXT/t_ext_stock_basic/$1 \
 --where "trade_date=$1" \
 --fields-terminated-by '\001' \
 --delete-target-dir \

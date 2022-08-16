@@ -1,0 +1,1 @@
+alter table stock.t_ext_stock_basic add partition(dt='${dt}') location '/stock/EXT/t_ext_stock_basic/${dt}'
