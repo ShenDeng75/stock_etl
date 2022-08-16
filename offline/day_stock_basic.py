@@ -16,7 +16,7 @@ from offline import month_stock_dim
 pd.set_option('display.width', 200)
 pd.set_option('display.max_columns', None)
 
-ts.set_token("c20ea165fe87e91c0eec2f1fb529b29e0a1ce3ee61f017dc96f64c7b")
+ts.set_token(conf.ts_token)
 pro = ts.pro_api()
 
 table_name = 't_stock_basic'

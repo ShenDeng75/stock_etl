@@ -5,6 +5,8 @@ from common.encrypt import decrypt
 class Config:
     # 公共配置
     log_dir = None
+    ts_token = decrypt(
+        "Y2QxYzZiMTcwNDEyYzFlYjhhM2U4NmM1OGNmNzJjN2JhOTM3ZGQ0N2RmZWFiZGFlNGU3Y2YyZjliOTUyNGE1NDMzNzQ1Yzk3YTlmOTk2NTk1MmExOWQzOWQ2YzFkMWNjZmE5MzAyMDA1Mzg4ODY5MGE2MmYyMzRkYzc5MzNhNmM=")
     # mysql配置
     mysql_host = 'localhost'
     mysql_port = 3306
