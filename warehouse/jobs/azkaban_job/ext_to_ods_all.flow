@@ -16,6 +16,13 @@ nodes:
       - sqoop_import_t_ext_stock_deal
     config:
       command: hive -hivevar dt=${dt} -f insert_t_ext_stock_deal.sql
+  # 写入ODS表
+  - name: insert_t_ods_stock_deal
+    type: command
+    dependsOn:
+      - insert_t_ext_stock_deal
+    config:
+      command: hive -hivevar dt=${dt} -f insert_t_ods_stock_deal.sql
 
   # 用sqoop同步t_ext_stock_basic数据到hdfs
   - name: sqoop_import_t_ext_stock_basic
@@ -29,3 +36,10 @@ nodes:
       - sqoop_import_t_ext_stock_basic
     config:
       command: hive -hivevar dt=${dt} -f insert_t_ext_stock_basic.sql
+  # 写入ODS表
+  - name: insert_t_ods_stock_basic
+    type: command
+    dependsOn:
+      - insert_t_ext_stock_basic
+    config:
+      command: hive -hivevar dt=${dt} -f insert_t_ods_stock_basic.sql
