@@ -42,11 +42,11 @@ class Sink:
                                  value_serializer=lambda x: x.encode("utf-8"))
         json_data = json.loads(json_str)
         if isinstance(json_data, dict):
-            kfk_prod.send(topic=topic, value=json.dumps(json_data))
+            kfk_prod.send(topic=topic, value=json.dumps(json_data, ensure_ascii=False))
             logger.info("写入数据到topic '%s' 1 行" % topic)
         if isinstance(json_data, list):
             for idx, msg in enumerate(json_data):
-                future = kfk_prod.send(topic=topic, value=json.dumps(msg))
+                future = kfk_prod.send(topic=topic, value=json.dumps(msg, ensure_ascii=False))
                 # 调用get方法是同步方式，性能较低；不调用是异步方式，异步方式存在丢失数据的问题；
                 # 如果集群不稳定，且数据量不大，最好使用同步方式；
                 meta_data = future.get(10)
